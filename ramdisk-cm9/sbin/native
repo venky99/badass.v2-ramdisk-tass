@@ -1,0 +1,11 @@
+#!/system/bin/sh
+
+bbox=/sbin/busybox
+swlist=/sys/module/lowmemorykiller/parameters/whitelist
+whitelist=/system/etc/Badass/whitelist
+
+sleep 10;
+
+if [ -e $whitelist ];
+    then $bbox cat $whitelist > $swlist;
+fi;

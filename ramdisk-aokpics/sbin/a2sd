@@ -1,0 +1,48 @@
+#!/system/bin/sh
+#################################
+##    CronMod A2SD -- Final    ##
+## Written by CronicCorey @xda ##
+##           40a2sd            ##
+#################################
+
+bbox=/sbin/busybox;
+
+## Set SD cache size
+if [ -e /sys/devices/virtual/bdi/179:0/read_ahead_kb ]
+then
+$bbox echo "3072" > /sys/devices/virtual/bdi/179:0/read_ahead_kb;
+fi;
+
+## Make /sd-ext directory if needed and unmount /sd-ext if it already mounted
+if [ ! -e /sd-ext ]
+then
+$bbox mount -o remount,rw /;
+$bbox mkdir /sd-ext;
+$bbox mount -o remount,ro /;
+else
+$bbox umount /sd-ext;
+fi;
+
+## Mount mmcblk0p2 to /sd-ext
+$bbox mount -o noatime,nodiratime,nosuid,nodev  /dev/block/mmcblk0p2 /sd-ext;
+$bbox chown 1000:1000 /sd-ext;
+$bbox chmod 771 /sd-ext;
+
+## Create A2SD directories and move existing files
+if [ ! -e /sd-ext/app ]
+then
+$bbox mv /data/app /sd-ext;
+$bbox mkdir /data/app;
+fi;
+
+if [ ! -e /sd-ext/app-private ]
+then
+$bbox mv /data/app-private /sd-ext;
+$bbox mkdir /data/app-private;
+fi;
+
+## Bind A2SD directories
+$bbox mount -o bind /sd-ext/app /data/app;
+$bbox mount -o bind /sd-ext/app-private /data/app-private;
+
+sync;
